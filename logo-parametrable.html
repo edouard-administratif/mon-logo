@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Logo paramétrable</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #17212b; background: #f3f5f7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; grid-template-columns: minmax(280px, 360px) 1fr; }
+    aside { padding: 28px; background: white; border-right: 1px solid #dce2e7; }
+    h1 { font-size: 1.35rem; margin: 0 0 8px; }
+    p { color: #526170; line-height: 1.45; margin: 0 0 25px; }
+    fieldset { border: 0; padding: 0; margin: 0 0 22px; }
+    legend { font-weight: 700; margin-bottom: 12px; }
+    label { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin: 12px 0; }
+    label span { grid-column: 1 / -1; }
+    input[type="range"] { width: 100%; accent-color: #246b78; }
+    input[type="color"] { width: 48px; height: 34px; border: 0; padding: 0; background: none; cursor: pointer; }
+    output { min-width: 46px; text-align: right; font-variant-numeric: tabular-nums; color: #526170; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+    button { border: 1px solid #246b78; border-radius: 8px; padding: 10px 14px; font: inherit; cursor: pointer; background: #246b78; color: white; }
+    button.secondary { background: white; color: #246b78; }
+    main { display: grid; place-items: center; padding: 24px; min-width: 0; }
+    .preview { width: min(100%, 640px); aspect-ratio: 1; display: grid; place-items: center; border: 1px solid #dce2e7; border-radius: 18px; background: white; box-shadow: 0 10px 35px #17212b12; }
+    svg { width: 82%; height: 82%; overflow: visible; }
+    @media (max-width: 720px) { body { grid-template-columns: 1fr; } aside { border-right: 0; border-bottom: 1px solid #dce2e7; } main { padding: 18px; } }
+  </style>
+</head>
+<body>
+  <aside>
+    <h1>Logo paramétrable</h1>
+    <p>Les yeux sont deux cercles. Les cheveux, les oreilles et la barbe sont des bandeaux de même épaisseur ; les bandeaux diagonaux ont des extrémités verticales.</p>
+
+    <fieldset>
+      <legend>Couleurs</legend>
+      <label>Cheveux <input id="hairColor" type="color" value="#000000"></label>
+      <label>Yeux <input id="eyesColor" type="color" value="#000000"></label>
+      <label>Oreilles <input id="earsColor" type="color" value="#000000"></label>
+      <label>Barbe <input id="beardColor" type="color" value="#000000"></label>
+      <label>Fond de l’aperçu <input id="backgroundColor" type="color" value="#ffffff"></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Formes</legend>
+      <label><span>Épaisseur commune des bandeaux</span><input id="bandThickness" type="range" min="5" max="12" step="0.1" value="8"><output for="bandThickness">8</output></label>
+      <label>Yeux en bandeaux horizontaux <input id="eyeBands" type="checkbox"></label>
+      <label><span>Taille des yeux</span><input id="eyeSize" type="range" min="8" max="20.3" step="any" value="13.5"><output for="eyeSize">13.5</output></label>
+      <label><span>Écart des yeux</span><input id="eyeGap" type="range" min="-5" max="5" step="0.1" value="0"><output for="eyeGap">0</output></label>
+      <label><span>Hauteur des cheveux</span><input id="hairEyeGap" type="range" min="-20" max="60" step="any" value="13.4"><output for="hairEyeGap">13.4</output></label>
+      <label><span>Hauteur des yeux</span><input id="eyeBeardGap" type="range" min="-20" max="60" step="any" value="16.2"><output for="eyeBeardGap">16.2</output></label>
+      <label><span>Longueur des oreilles</span><input id="earLength" type="range" min="8.7" max="21.8" step="any" value="14.5"><output for="earLength">14.5</output></label>
+      <label><span>Longueur des joues</span><input id="beardLength" type="range" min="2.1" max="22" step="any" value="9.4"><output for="beardLength">9.4</output></label>
+      <label><span>Inclinaison des cheveux</span><input id="hairAngle" type="range" min="-15" max="15" step="0.1" value="0"><output for="hairAngle">0.0°</output></label>
+      <label><span>Épaisseur des cheveux</span><input id="hairHeight" type="range" min="8" max="25" step="0.1" value="15.4"><output for="hairHeight">15.4</output></label>
+      <label><span>Position de la raie</span><input id="hairParting" type="range" min="-1" max="1" step="0.01" value="0.48"><output for="hairParting">0.48</output></label>
+    </fieldset>
+
+    <div class="actions">
+      <button id="download" type="button">Télécharger le SVG</button>
+      <button id="reset" type="button" class="secondary">Réinitialiser</button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="preview" id="preview">
+      <svg id="logo" xmlns="http://www.w3.org/2000/svg" viewBox="39 35 81 100" role="img" aria-label="Logo avec cheveux, yeux, oreilles et barbe">
+        <!-- Bandeaux calculés à partir de leurs axes ; les bouts diagonaux sont verticaux. -->
+        <g id="cheveux" fill="#000000">
+          <path id="cheveuxContour"/>
+        </g>
+        <g id="oreilles" fill="#000000">
+          <rect id="oreilleGauche" x="44.72" y="71.13" width="8" height="14.53"/>
+          <rect id="oreilleDroite" x="107.05" y="71.17" width="8" height="14.53"/>
+        </g>
+        <g id="yeux" fill="#000000">
+          <circle id="oeilGauche" cx="68.589577" cy="69.539757" r="6.7623749"/>
+          <circle id="oeilDroit" cx="91.203697" cy="69.538681" r="6.7623749"/>
+          <rect id="bandeauOeilGauche" display="none"/>
+          <rect id="bandeauOeilDroit" display="none"/>
+        </g>
+        <g id="barbe" fill="#000000">
+          <path id="barbeFusionnee"/>
+        </g>
+      </svg>
+    </div>
+  </main>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const controls = ['hairColor', 'eyesColor', 'earsColor', 'beardColor', 'backgroundColor', 'bandThickness', 'eyeSize', 'eyeGap', 'hairEyeGap', 'eyeBeardGap', 'earLength', 'beardLength', 'hairAngle', 'hairHeight', 'hairParting'];
+    let circleSize = 13.5, bandLength = 13.5;
+    const fmt = n => Number(n.toFixed(4));
+    function hairContour(e, height, angle, parting) {
+      const xLeft = 53.18, xRight = 107.07, xCenter = (xLeft + xRight) / 2;
+      const xPart = xCenter + parting * (xRight - xLeft) / 2;
+      const yTop = 40;
+      if (height <= e + 1e-7) {
+        // À l'épaisseur minimale, la raie disparaît : un seul bandeau uniforme.
+        const slope = Math.tan(angle * Math.PI / 180);
+        const leftTop = yTop + slope * (xLeft - xCenter);
+        const rightTop = yTop + slope * (xRight - xCenter);
+        const verticalThickness = e * Math.hypot(1, slope);
+        const points = [[xLeft, leftTop], [xRight, rightTop],
+                        [xRight, rightTop + verticalThickness], [xLeft, leftTop + verticalThickness]];
+        return {
+          path: points.map((p, i) => `${i ? 'L' : 'M'} ${fmt(p[0])} ${fmt(p[1])}`).join(' ') + ' Z',
+          top: fmt(Math.min(...points.map(p => p[1]))),
+          bottom: fmt(Math.max(...points.map(p => p[1])))
+        };
+      }
+      // À 0°, chaque côté a la même hauteur entre son haut à la raie et son bas extérieur.
+      function riseFor(dx) {
+        if (dx < 1e-7) return 0;
+        let low = 0, high = height;
+        for (let i = 0; i < 45; i++) {
+          const mid = (low + high) / 2;
+          if (mid + e * Math.hypot(1, mid / dx) > height) high = mid;
+          else low = mid;
+        }
+        return (low + high) / 2;
+      }
+      const hasLeft = xPart - xLeft > 1e-7, hasRight = xRight - xPart > 1e-7;
+      const riseLeft = riseFor(xPart - xLeft), riseRight = riseFor(xRight - xPart);
+      function geometry(shear) {
+        const topLeft = yTop + riseLeft + shear * (xLeft - xCenter);
+        const topPart = yTop + shear * (xPart - xCenter);
+        const topRight = yTop + riseRight + shear * (xRight - xCenter);
+        // Écart vertical = épaisseur normale × √(1 + pente²) ; coupes à x fixe.
+        const thickLeft = hasLeft ? e * Math.hypot(1, (topPart - topLeft) / (xPart - xLeft)) : 0;
+        const thickRight = hasRight ? e * Math.hypot(1, (topRight - topPart) / (xRight - xPart)) : 0;
+        return { topLeft, topPart, topRight, thickLeft, thickRight,
+                 bottomLeft: topLeft + (hasLeft ? thickLeft : thickRight),
+                 bottomRight: topRight + (hasRight ? thickRight : thickLeft) };
+      }
+      // L'inclinaison correspond à la ligne joignant les deux points les plus bas.
+      const targetDifference = Math.tan(angle * Math.PI / 180) * (xRight - xLeft);
+      let low = -1, high = 1;
+      for (let i = 0; i < 45; i++) {
+        const mid = (low + high) / 2, g = geometry(mid);
+        if (g.bottomRight - g.bottomLeft > targetDifference) high = mid;
+        else low = mid;
+      }
+      // Aux deux extrêmes de la raie, un seul côté subsiste : on conserve sa pente.
+      const g = geometry(hasLeft && hasRight ? (low + high) / 2 : Math.tan(angle * Math.PI / 180));
+      let lowerJoin, bottomLeft = g.bottomLeft, bottomRight = g.bottomRight;
+      if (hasLeft && hasRight) {
+        // Prolonge/coupe les deux bords inférieurs à leur intersection.
+        // Cela évite le segment vertical et l'encoche au niveau de la raie.
+        const leftSlope = (g.topPart - g.topLeft) / (xPart - xLeft);
+        const rightSlope = (g.topRight - g.topPart) / (xRight - xPart);
+        const joinX = xPart + (g.thickRight - g.thickLeft) / (leftSlope - rightSlope);
+        if (joinX < xLeft) {
+          bottomLeft = Math.max(bottomLeft, g.topPart + g.thickRight + rightSlope * (xLeft - xPart));
+        } else if (joinX > xRight) {
+          bottomRight = Math.max(bottomRight, g.topPart + g.thickLeft + leftSlope * (xRight - xPart));
+        } else {
+          const joinY = g.topPart + g.thickLeft + leftSlope * (joinX - xPart);
+          lowerJoin = [joinX, joinY];
+        }
+      }
+      const points = hasLeft && hasRight ? [
+        [xLeft, g.topLeft], [xPart, g.topPart], [xRight, g.topRight],
+        [xRight, bottomRight], ...(lowerJoin ? [lowerJoin] : []), [xLeft, bottomLeft]
+      ] : hasRight ? [
+        [xLeft, g.topPart], [xRight, g.topRight], [xRight, g.bottomRight], [xLeft, g.bottomLeft]
+      ] : [
+        [xLeft, g.topLeft], [xRight, g.topPart], [xRight, g.bottomRight], [xLeft, g.bottomLeft]
+      ];
+      return {
+        path: points.map((p, i) => `${i ? 'L' : 'M'} ${fmt(p[0])} ${fmt(p[1])}`).join(' ') + ' Z',
+        top: fmt(Math.min(...points.map(p => p[1]))),
+        bottom: fmt(Math.max(...points.map(p => p[1])))
+      };
+    }
+    // Le bord supérieur commence au coin inférieur intérieur de l'oreille.
+    // On résout sa hauteur finale pour que le bord inférieur arrive exactement
+    // au bas des deux bandeaux horizontaux superposés du menton.
+    function cheek(startX, startTop, endX, chinBottom, e) {
+      const dx = Math.abs(endX - startX);
+      let low = startTop - 100, high = chinBottom;
+      for (let i = 0; i < 50; i++) {
+        const mid = (low + high) / 2;
+        const slope = (mid - startTop) / dx;
+        if (mid + e * Math.hypot(1, slope) > chinBottom) high = mid;
+        else low = mid;
+      }
+      const endTop = (low + high) / 2;
+      const rise = endTop - startTop;
+      const verticalThickness = e * Math.hypot(1, rise / dx);
+      const topAt = x => startTop + rise * (x - startX) / (endX - startX);
+      return { startX, startTop, endX, endTop, verticalThickness, topAt };
+    }
+    function mergedBeard(left, right, chinLeft, chinRight, chinTop, chinBottom) {
+      const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+      const leftCross = left.startX + (chinTop-left.startTop) * (left.endX-left.startX) / (left.endTop-left.startTop);
+      const rightCross = right.startX + (chinTop-right.startTop) * (right.endX-right.startX) / (right.endTop-right.startTop);
+      const xl = clamp(leftCross, chinLeft, left.endX);
+      const xr = clamp(rightCross, right.endX, chinRight);
+      const points = [
+        [left.startX, left.startTop], [xl, left.topAt(xl)], [xl, chinTop],
+        [xr, chinTop], [xr, right.topAt(xr)], [right.startX, right.startTop],
+        [right.startX, right.startTop + right.verticalThickness],
+        [chinRight, right.topAt(chinRight) + right.verticalThickness],
+        [chinRight, chinBottom], [chinLeft, chinBottom],
+        [chinLeft, left.topAt(chinLeft) + left.verticalThickness],
+        [left.startX, left.startTop + left.verticalThickness]
+      ];
+      // Supprime les segments nuls et les sommets alignés du contour unique.
+      const simple = points.filter((p, i) => i === 0 || Math.hypot(p[0]-points[i-1][0], p[1]-points[i-1][1]) > 1e-7);
+      let changed = true;
+      while (changed && simple.length > 3) {
+        changed = false;
+        for (let i = 0; i < simple.length; i++) {
+          const a = simple[(i-1+simple.length)%simple.length], b = simple[i], c = simple[(i+1)%simple.length];
+          const ab = [b[0]-a[0], b[1]-a[1]], bc = [c[0]-b[0], c[1]-b[1]];
+          const cross = ab[0]*bc[1] - ab[1]*bc[0];
+          const dot = ab[0]*bc[0] + ab[1]*bc[1];
+          if (Math.abs(cross) < 1e-7 && dot >= 0) { simple.splice(i, 1); changed = true; break; }
+        }
+      }
+      return simple.map((p, i) => `${i ? 'L' : 'M'} ${fmt(p[0])} ${fmt(p[1])}`).join(' ') + ' Z';
+    }
+    function update() {
+      $('cheveux').setAttribute('fill', $('hairColor').value);
+      $('yeux').setAttribute('fill', $('eyesColor').value);
+      $('oreilles').setAttribute('fill', $('earsColor').value);
+      $('barbe').setAttribute('fill', $('beardColor').value);
+      $('preview').style.backgroundColor = $('backgroundColor').value;
+
+      const e = Number($('bandThickness').value);
+      $('hairHeight').min = e;
+      if (Number($('hairHeight').value) < e) $('hairHeight').value = e;
+      const hair = hairContour(
+        e, Number($('hairHeight').value), Number($('hairAngle').value), Number($('hairParting').value)
+      );
+      $('cheveuxContour').setAttribute('d', hair.path);
+
+      // Les oreilles restent fixes ; la longueur des joues déplace le menton.
+      $('oreilleGauche').setAttribute('x', fmt(48.72 - e / 2));
+      $('oreilleDroite').setAttribute('x', fmt(111.07 - e / 2));
+      const cheekLength = Number($('beardLength').value);
+      for (const id of ['oreilleGauche', 'oreilleDroite']) {
+        $(id).setAttribute('width', e);
+        const height = fmt(Number($('earLength').value));
+        $(id).setAttribute('height', height);
+        $(id).setAttribute('y', id === 'oreilleGauche' ? 71.13 : 71.17);
+      }
+
+      const earBottomLeft = Number($('oreilleGauche').getAttribute('y')) + Number($('oreilleGauche').getAttribute('height'));
+      const earBottomRight = Number($('oreilleDroite').getAttribute('y')) + Number($('oreilleDroite').getAttribute('height'));
+      const beardTop = Math.min(earBottomLeft, earBottomRight);
+      const chinTop = Math.max(fmt(beardTop + cheekLength), earBottomLeft + 2, earBottomRight + 2);
+      const chinBottom = chinTop + 2 * e;
+      const bands = $('eyeBands').checked;
+      const eyeSize = Number($('eyeSize').value);
+      const gap = Number($('eyeGap').value);
+      const eyeRadius = fmt(eyeSize / 2);
+      const eyeY = fmt(beardTop - Number($('eyeBeardGap').value));
+      const hairShift = fmt(eyeY - Number($('hairEyeGap').value) - hair.bottom);
+      $('cheveux').setAttribute('transform', `translate(0 ${hairShift})`);
+      $('oeilGauche').setAttribute('display', bands ? 'none' : 'inline');
+      $('oeilDroit').setAttribute('display', bands ? 'none' : 'inline');
+      $('oeilGauche').setAttribute('r', eyeRadius);
+      $('oeilDroit').setAttribute('r', eyeRadius);
+      $('oeilGauche').setAttribute('cy', eyeY);
+      $('oeilDroit').setAttribute('cy', eyeY);
+      $('oeilGauche').setAttribute('cx', (68.589577 - gap).toFixed(3));
+      $('oeilDroit').setAttribute('cx', (91.203697 + gap).toFixed(3));
+      for (const [id, cx] of [['bandeauOeilGauche', 68.589577 - gap], ['bandeauOeilDroit', 91.203697 + gap]]) {
+        $(id).setAttribute('display', bands ? 'inline' : 'none');
+        $(id).setAttribute('x', fmt(cx - eyeSize / 2));
+        $(id).setAttribute('y', fmt(eyeY - e / 2));
+        $(id).setAttribute('width', eyeSize);
+        $(id).setAttribute('height', e);
+      }
+      // La joue finit sur le bord visible du menton : leurs bas se rejoignent sans marche.
+      const left = cheek(Number($('oreilleGauche').getAttribute('x')) + e, earBottomLeft, 68.61, chinBottom, e);
+      const right = cheek(Number($('oreilleDroite').getAttribute('x')), earBottomRight, 91.15, chinBottom, e);
+      $('barbeFusionnee').setAttribute('d', mergedBeard(left, right, 68.61, 91.15, chinTop, chinBottom));
+      const viewTop = Math.min(35, hair.top + hairShift - 5, Number($('oreilleGauche').getAttribute('y')) - 5,
+                               Number($('oreilleDroite').getAttribute('y')) - 5);
+      const viewBottom = Math.max(135, chinBottom + 6);
+      $('logo').setAttribute('viewBox', `39 ${fmt(viewTop)} 81 ${fmt(viewBottom - viewTop)}`);
+
+      for (const id of ['bandThickness', 'eyeSize', 'eyeGap', 'hairEyeGap', 'eyeBeardGap', 'earLength', 'beardLength', 'hairAngle', 'hairHeight', 'hairParting']) {
+        const number = Number($(id).value);
+        $(id).nextElementSibling.value = id === 'hairParting' ? number.toFixed(2)
+          : number.toFixed(1) + (id === 'hairAngle' ? '°' : '');
+      }
+    }
+    $('eyeBands').addEventListener('change', () => {
+      if ($('eyeBands').checked) {
+        circleSize = Number($('eyeSize').value);
+        $('eyeSize').min = 5; $('eyeSize').max = 25; $('eyeSize').step = 0.1; $('eyeSize').value = bandLength;
+      } else {
+        bandLength = Number($('eyeSize').value);
+        $('eyeSize').min = 8; $('eyeSize').max = 20.3; $('eyeSize').step = 'any'; $('eyeSize').value = circleSize;
+      }
+      update();
+    });
+    controls.forEach(id => $(id).addEventListener('input', update));
+    $('reset').addEventListener('click', () => {
+      $('eyeBands').checked = false;
+      $('eyeSize').min = 8; $('eyeSize').max = 20.3; $('eyeSize').step = 'any';
+      circleSize = 13.5; bandLength = 13.5;
+      controls.forEach(id => { $(id).value = $(id).defaultValue; });
+      update();
+    });
+    $('download').addEventListener('click', () => {
+      const svg = $('logo').cloneNode(true);
+      svg.removeAttribute('role');
+      svg.removeAttribute('aria-label');
+      const data = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(svg);
+      const url = URL.createObjectURL(new Blob([data], { type: 'image/svg+xml' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'logo-personnalise.svg';
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+    update();
+  </script>
+</body>
+</html>
